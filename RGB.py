@@ -15,6 +15,18 @@ def is_rgb(rgb: tuple[int, int, int]) -> bool:
 class NotRGBError(Exception):
     pass
 
+class TooLongTargetError(Exception):
+    pass
+
+
+def complement_zero(target: str):
+    if len(target) > 2:
+        raise TooLongTargetError()
+    
+    if len(target) == 2 :
+        return target
+    
+    return f"0{target}"
 
 class RGB:
     def __init__(self, rgb: tuple[int, int, int]) -> None:
@@ -25,26 +37,47 @@ class RGB:
 
     def to_hex_string(self):
         red, green, blue = self._rgb
-        _hex_red = format(red, "x")
-        hex_red = _hex_red if len(_hex_red) == 2 else f"0{_hex_red}"
 
-        _hex_blue = format(blue, "x")
-        hex_blue = _hex_blue if len(_hex_blue) == 2 else f"0{_hex_blue}"
+        _hex_red = complement_zero(format(red, "x"))
+        _hex_blue = complement_zero(format(blue, "x"))
+        _hex_green = complement_zero(format(green, "x"))
 
-        _hex_green = format(green, "x")
-        hex_green = _hex_green if len(_hex_green) == 2 else f"0{_hex_green}"
-
-        hex_string = f"#{hex_red}{hex_green}{hex_blue}"
+        hex_string = f"#{_hex_red}{_hex_green}{_hex_blue}"
 
         return hex_string
-
-    def lightness(self, percent: float):
-        def _lighten(color: int) -> int:
-            _color = int(color + 255 * percent)
+    
+    def darken(self, amount: float):
+        def _darken(color: int) -> int:
+            _color = int(color * (1 - amount))
             if _color > 255:
                 return 255
             elif _color < 0:
                 return 0
             return _color
-
+        
+        return RGB(tuple(map(_darken, self._rgb)))
+    
+    def lighten(self, amount: float):
+        def _lighten(color: int) -> int:
+            _color = int((255 - color) * amount + color)
+            if _color > 255:
+                return 255
+            elif _color < 0:
+                return 0
+            return _color
+        
         return RGB(tuple(map(_lighten, self._rgb)))
+
+    def saturate(self, amount):
+        red, green, blue = self._rgb
+
+        if (max(self._rgb) == red):
+            _rgb = tuple(map(int, (red, green * amount, blue * amount)))
+            return RGB(_rgb)
+        elif (max(self._rgb) == green):
+            _rgb = tuple(map(int, (red * amount, green, blue * amount)))
+            return RGB(_rgb)
+        else:
+            _rgb = tuple(map(int, (red * amount, green * amount, blue)))
+            return RGB(_rgb)
+        

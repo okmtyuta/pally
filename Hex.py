@@ -27,6 +27,12 @@ class Hex:
         blue = int(self._hex[5:7], 16)
 
         return (red, green, blue)
+    
+    def lighten(self, amount: float):
+        return Hex(RGB(self._rgb).lighten(amount).to_hex_string())
 
-    def lightness(self, percent: float):
-        return Hex(RGB(self._rgb).lightness(percent).to_hex_string())
+    def darken(self, amount: float):
+        return Hex(RGB(self._rgb).darken(amount).to_hex_string())
+    
+    def saturate(self, amount):
+        return Hex(RGB(self._rgb).saturate(amount).to_hex_string())
